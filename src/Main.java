@@ -19,6 +19,7 @@ public class Main {
             String[] tokens = line.split(",");
             boolean buy = tokens[0].charAt(0) == 'B';
             int id = Integer.parseInt(tokens[1]);
+
             short price = Short.parseShort(tokens[2]);
             int quantity = Integer.parseInt(tokens[3]);
             if (tokens.length > NUM_LIMIT_ORDER_FIELDS) {
@@ -28,6 +29,7 @@ public class Main {
                 // iceberg order
                 b.submit(new LimitOrder(buy, id, price, quantity));
             }
+            b.renderBook();
         }
     }
 }
