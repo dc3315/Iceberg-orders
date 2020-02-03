@@ -1,17 +1,41 @@
 public class LimitOrder {
 
-    boolean buy;
+    boolean isBuy;
     long tsc;
     int id;
     short price;
-    int quantity;
+    int volume;
 
-    public LimitOrder(boolean buy, int id, short price, int quantity) {
-        this.buy = buy;
+    public LimitOrder(boolean isBuy, int id, short price, int volume) {
+        this.isBuy = isBuy;
         this.tsc = System.nanoTime();
         this.id = id;
         this.price = price;
-        this.quantity = quantity;
+        this.volume = volume;
     }
+
+    public void decrementVolume() {
+
+    }
+
+    public void fill() {
+
+    }
+
+    public void refreshPeak() {
+    }
+
+    public void decrementPeak(int v) {
+        volume -= v;
+    }
+
+    public int getFullVolume() {
+        return volume;
+    }
+
+    public int getVolume() {
+        return volume;
+    }
+
 
 }
