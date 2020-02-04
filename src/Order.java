@@ -10,9 +10,9 @@ public interface Order {
 
     int id();
 
-    void bookkeepTradePartner(int id, int v);
+    void trackTradePartner(int id, int v);
 
-    void removePartnerFromLog(int partnerId);
+    void untrackTradePartner(int partnerId);
 
     boolean isBuy();
 
@@ -20,4 +20,5 @@ public interface Order {
 
     void logFill();
 
+    void refresh();
 }

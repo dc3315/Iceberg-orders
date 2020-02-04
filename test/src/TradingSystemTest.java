@@ -24,39 +24,52 @@ public class TradingSystemTest {
         System.setOut(originalOut);
     }
 
+     // NB: Should really use a loop to unroll set of <Input,ExpectedOutput,
+     // ActualOutput> tests. In this case since there are few we leave as is.
+
     @org.junit.Test
-    public void test4_2_0() throws IOException {
-        Main.main(new String[]{"test/input/4.2.0.txt"});
+    public void testExampleTestCase() throws IOException {
+        Main.main(new String[]{"test/input/ExampleTestCase.txt"});
         String expectedOutput =
-                new String(Files.readAllBytes(new File("test/expected/4.2.0.txt").toPath()));
+                new String(Files.readAllBytes(new File("test/expected/ExampleTestCase.txt").toPath()));
         String actualOutput = outContent.toString();
         assertEquals(expectedOutput, actualOutput);
     }
 
     @org.junit.Test
-    public void test4_2_3_2A() throws IOException {
-        Main.main(new String[]{"test/input/4.2.3.2a.txt"});
+    public void testPassiveExecutionTestCaseA() throws IOException {
+        Main.main(new String[]{"test/input/PassiveExecutionTestCaseA.txt"});
         String expectedOutput =
-                new String(Files.readAllBytes(new File("test/expected/4.2.3.2a.txt").toPath()));
+                new String(Files.readAllBytes(new File("test/expected/PassiveExecutionTestCaseA.txt").toPath()));
         String actualOutput = outContent.toString();
         assertEquals(expectedOutput, actualOutput);
     }
 
     @org.junit.Test
-    public void test4_2_3_2B() throws IOException {
-        Main.main(new String[]{"test/input/4.2.3.2b.txt"});
+    public void testPassiveExecutionTestCaseB() throws IOException {
+        Main.main(new String[]{"test/input/PassiveExecutionTestCaseB.txt"});
         String expectedOutput =
-                new String(Files.readAllBytes(new File("test/expected/4.2.3.2b.txt").toPath()));
+                new String(Files.readAllBytes(new File("test/expected/PassiveExecutionTestCaseB.txt").toPath()));
         String actualOutput = outContent.toString();
         assertEquals(expectedOutput, actualOutput);
     }
 
     @org.junit.Test
-    public void test4_2_3_2C() throws IOException {
-        Main.main(new String[]{"test/input/4.2.3.2c.txt"});
+    public void testPassiveExecutionTestCaseC() throws IOException {
+        Main.main(new String[]{"test/input/PassiveExecutionTestCaseC.txt"});
         String expectedOutput =
-                new String(Files.readAllBytes(new File("test/expected/4.2.3" +
-                        ".2c.txt").toPath()));
+                new String(Files.readAllBytes(new File("test/expected" +
+                        "/PassiveExecutionTestCaseC.txt").toPath()));
+        String actualOutput = outContent.toString();
+        assertEquals(expectedOutput, actualOutput);
+    }
+
+    @org.junit.Test
+    public void testAggressiveEntryTestCase() throws IOException {
+        Main.main(new String[]{"test/input/AggressiveEntryTestCase.txt"});
+        String expectedOutput =
+                new String(Files.readAllBytes(new File("test/expected" +
+                        "/AggressiveEntryTestCase.txt").toPath()));
         String actualOutput = outContent.toString();
         assertEquals(expectedOutput, actualOutput);
     }

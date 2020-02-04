@@ -12,7 +12,6 @@ public class Main {
             System.setIn(new FileInputStream(args[0]));
         }
 
-
         OrderBook book = new OrderBook();
 
         BufferedReader systemIn =

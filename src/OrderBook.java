@@ -21,24 +21,34 @@ public class OrderBook {
     }
 
     public void submit(Order order) {
+
         if (order.isBuy()) {
             buyOrders.add(order);
         } else {
             sellOrders.add(order);
         }
-        match();
+        match(order instanceof IcebergOrder, order);
+        // bit of a pity for instanceof usage. Would be curious about neater
+        // solution.
     }
 
     /**
-     * Check top of priority queues until we can produce anymore trades.
+     * Check top of priority queues until we cannot produce anymore trades.
      */
-    private void match() {
+    private void match(boolean aggressiveEntry, Order order) {
         Order buyRoot;
         Order sellRoot;
+        int i = 0;
         while (!buyOrders.isEmpty() && !sellOrders.isEmpty() &&
                 (buyRoot = buyOrders.peek()).price() >= (sellRoot =
                         sellOrders.peek()).price()) {
-
+            if (aggressiveEntry && i == 0) {
+                // if the order reached top of one of priority queues
+                // it succeeded in aggressively entering.
+                // When matching is complete we need to float the iceberg up
+                // before rendering according to documentation.
+                aggressiveEntry = (buyRoot == order || sellRoot == order);
+            }
             // Determine volume to trade.
             int buyVolume = buyRoot.getVolume();
             int sellVolume = sellRoot.getVolume();
@@ -49,12 +59,19 @@ public class OrderBook {
             sellRoot.decrementVolume(tradeVolume);
 
             // Track trading partners.
-            buyRoot.bookkeepTradePartner(sellRoot.id(), tradeVolume);
-            sellRoot.bookkeepTradePartner(buyRoot.id(), tradeVolume);
+            buyRoot.trackTradePartner(sellRoot.id(), tradeVolume);
+            sellRoot.trackTradePartner(buyRoot.id(), tradeVolume);
 
             // Eliminate filled orders or refresh icebergs.
             checkOrderVolume(buyRoot, sellRoot, c);
             checkOrderVolume(sellRoot, buyRoot, c);
+            i++;
+        }
+
+        if (aggressiveEntry) {
+            // The aggressive order matched and needs to be floated up.
+            // If the order was already filled there will be a no-op.
+            order.refresh();
         }
         // Display trade results.
         render();
@@ -79,7 +96,7 @@ public class OrderBook {
             // Order was exhausted, log immediate execution and remove from
             // partnerlist in remaining trade. This means only one log per
             // <Buyer,Seller> pair trade.
-            partner.removePartnerFromLog(order.id());
+            partner.untrackTradePartner(order.id());
             orders.poll().logFill();
         }
     }

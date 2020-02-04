@@ -17,6 +17,10 @@ public class IcebergOrder extends LimitOrder {
         return peak;
     }
 
+    @Override
+    public void refresh() {
+        floatUp();
+    }
 
     @Override
     public void decrementVolume(int v) {
@@ -24,14 +28,15 @@ public class IcebergOrder extends LimitOrder {
         // so decrementing by more than peak should never happen.
         peak -= v;
         if (peak == 0) {
-            // iceberg floats up when there is no peak left
+            // automatically float iceberg up when no peak is left.
             floatUp();
         }
     }
 
     // Float iceberg up
     private void floatUp() {
-        peak = Math.min(peakSize, volume);
-        volume -= peak;
+        int toFloatUp = Math.min(volume, peakSize - peak);
+        peak += toFloatUp;
+        volume -= toFloatUp;
     }
 }

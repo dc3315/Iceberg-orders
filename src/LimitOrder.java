@@ -18,7 +18,7 @@ public class LimitOrder implements Order {
         this.tradePartners = new HashMap<>();
     }
 
-    public void bookkeepTradePartner(int id, int v) {
+    public void trackTradePartner(int id, int v) {
         int newVolume = tradePartners.getOrDefault(id, 0) + v;
         tradePartners.put(id, newVolume);
     }
@@ -32,7 +32,12 @@ public class LimitOrder implements Order {
     }
 
     @Override
-    public void removePartnerFromLog(int partnerId) {
+    public void refresh() {
+    }
+
+
+    @Override
+    public void untrackTradePartner(int partnerId) {
         tradePartners.remove(partnerId);
     }
 
