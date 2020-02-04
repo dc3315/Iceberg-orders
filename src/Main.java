@@ -23,14 +23,13 @@ public class Main {
             short price = Short.parseShort(tokens[2]);
             int volume = Integer.parseInt(tokens[3]);
             if (tokens.length > NUM_LIMIT_ORDER_FIELDS) {
+                // iceberg order
                 int peakSize = Integer.parseInt(tokens[4]);
                 book.submit(new IcebergOrder(isBuy, id, price, volume,
                         peakSize));
             } else {
-                // iceberg order
                 book.submit(new LimitOrder(isBuy, id, price, volume));
             }
-            book.render();
         }
     }
 }

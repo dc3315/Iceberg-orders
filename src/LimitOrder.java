@@ -1,3 +1,5 @@
+import java.util.HashMap;
+
 public class LimitOrder {
 
     boolean isBuy;
@@ -5,6 +7,7 @@ public class LimitOrder {
     int id;
     short price;
     int volume;
+    HashMap<Integer, Integer> tradePartners;
 
     public LimitOrder(boolean isBuy, int id, short price, int volume) {
         this.isBuy = isBuy;
@@ -12,30 +15,34 @@ public class LimitOrder {
         this.id = id;
         this.price = price;
         this.volume = volume;
+        this.tradePartners = new HashMap<>();
     }
 
-    public void decrementVolume() {
-
+    public void addTradePartner(int id, int v) {
+        int newVolume = tradePartners.getOrDefault(id, 0) + v;
+        tradePartners.put(id, newVolume);
     }
 
     public void fill() {
-
+        for (int partnerId : tradePartners.keySet()) {
+            System.out.printf("%d,%d,%d,%d\n", (isBuy) ? this.id : partnerId,
+                    (isBuy) ? partnerId : this.id,
+                    this.price, tradePartners.get(partnerId));
+        }
     }
 
-    public void refreshPeak() {
-    }
-
-    public void decrementPeak(int v) {
+    public void decrementVolume(int v) {
+        assert (v <= volume);
         volume -= v;
     }
 
-    public int getFullVolume() {
-        return volume;
-    }
 
     public int getVolume() {
         return volume;
     }
 
 
+    public void setTime(long nanoTime) {
+        this.tsc = nanoTime;
+    }
 }

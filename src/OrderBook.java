@@ -44,13 +44,13 @@ public class OrderBook {
     private void renderOrderPair(LimitOrder b, LimitOrder s) {
         assert (b != null || s != null);
         if (b != null) {
-            System.out.printf("|%10d|%,13d|%,7d|", b.id, b.volume, b.price);
+            System.out.printf("|%10d|%,13d|%,7d|", b.id, b.getVolume(), b.price);
         } else {
             System.out.printf("|%10c|%13c|%7c|", ' ', ' ', ' ');
         }
 
         if (s != null) {
-            System.out.printf("%,7d|%,13d|%10d|", s.price, s.volume, s.id);
+            System.out.printf("%,7d|%,13d|%10d|", s.price, s.getVolume(), s.id);
         } else {
             System.out.printf("%7c|%13c|%10c|", ' ', ' ', ' ');
         }
@@ -63,28 +63,48 @@ public class OrderBook {
         } else {
             sellOrders.add(order);
         }
+        match();
     }
 
-
-    public void match(LimitOrder order) {
+    public void match() {
+        LimitOrder buyRoot;
+        LimitOrder sellRoot;
         while (!buyOrders.isEmpty() && !sellOrders.isEmpty() &&
-                buyOrders.peek().price >= sellOrders.peek().price) {
-            LimitOrder buyOrder = buyOrders.poll();
-            LimitOrder sellOrder = sellOrders.poll();
+                (buyRoot = buyOrders.peek()).price >= (sellRoot =
+                        sellOrders.peek()).price) {
 
-            int buyOrderPeakVolume = buyOrder.getVolume();
-            int sellOrderPeakVolume = sellOrder.getVolume();
+            int buyVolume = buyRoot.getVolume();
+            int sellVolume = sellRoot.getVolume();
+            int c = Integer.compare(buyVolume, sellVolume);
+            int minVolume = Math.min(buyVolume, sellVolume);
 
-            int minVolume = Math.min(buyOrderPeakVolume,
-                    sellOrderPeakVolume);
+            buyRoot.decrementVolume(minVolume);
+            sellRoot.decrementVolume(minVolume);
 
-            // decrement minvolume
+            // Bookkeeping.
+            buyRoot.addTradePartner(sellRoot.id, minVolume);
+            sellRoot.addTradePartner(buyRoot.id, minVolume);
 
-            if (buyOrder.getFullVolume() > 0) {
+            // Eliminate filled orders or refresh icebergs.
+            checkOrderVolume(buyRoot, c);
+            checkOrderVolume(sellRoot, c);
+        }
+        render();
+    }
 
+    private void checkOrderVolume(LimitOrder order, int c) {
+        PriorityQueue<LimitOrder> orders = (order.isBuy) ? buyOrders :
+                sellOrders;
+        if (order.getVolume() != 0) {
+            if (c <= 0) {
+                // iceberg was exhausted and floated back up
+                LimitOrder root = orders.poll();
+                root.setTime(System.nanoTime());
+                orders.add(root);
             }
-
+        } else {
+            // order was exhausted definitely.
+            orders.poll().fill();
         }
     }
-
 }

@@ -1,13 +1,13 @@
 public class IcebergOrder extends LimitOrder {
 
-    private int peakSize;
-    private int peak;
+    int peakSize;
+    int peak;
 
     public IcebergOrder(boolean buy, int id, short price, int volume,
                         int peakSize) {
         super(buy, id, price, volume);
         this.peakSize = peakSize;
-        peak = peakSize;
+        this.peak = peakSize;
         this.volume -= peakSize; // hidden volume
     }
 
@@ -18,15 +18,21 @@ public class IcebergOrder extends LimitOrder {
         return peak;
     }
 
-    @Override
-    public void decrement(int v) {
+    public void fill() { }
 
-        refreshPeak();
+
+    public void decrementVolume(int v) {
+        assert (v <= peak); // trading system can never see more than the peak
+        // so cannot decrement by more than peak.
+        peak -= v;
+        if (peak == 0) {
+            // iceberg always floats up when there is no peak left
+            refreshPeak();
+        }
     }
 
-    // peak floats up.
-    @Override
-    public void refreshPeak() {
+    // Float iceberg up
+    private void refreshPeak() {
         peak = Math.min(peakSize, volume);
         volume -= peak;
     }
