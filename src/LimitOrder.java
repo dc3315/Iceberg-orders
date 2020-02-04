@@ -1,13 +1,13 @@
 import java.util.HashMap;
 
-public class LimitOrder {
+public class LimitOrder implements Order {
 
-    boolean isBuy;
-    long tsc;
-    int id;
-    short price;
-    int volume;
-    HashMap<Integer, Integer> tradePartners;
+    private boolean isBuy;
+    private long tsc;
+    private int id;
+    private short price;
+    protected int volume;
+    private HashMap<Integer, Integer> tradePartners;
 
     public LimitOrder(boolean isBuy, int id, short price, int volume) {
         this.isBuy = isBuy;
@@ -18,24 +18,28 @@ public class LimitOrder {
         this.tradePartners = new HashMap<>();
     }
 
-    public void addTradePartner(int id, int v) {
+    public void bookkeepTradePartner(int id, int v) {
         int newVolume = tradePartners.getOrDefault(id, 0) + v;
         tradePartners.put(id, newVolume);
     }
 
-    public void fill() {
+    public void logFill() {
         for (int partnerId : tradePartners.keySet()) {
-            System.out.printf("%d,%d,%d,%d\n", (isBuy) ? this.id : partnerId,
-                    (isBuy) ? partnerId : this.id,
+            System.out.printf("%d,%d,%d,%d\n", (isBuy) ? id : partnerId,
+                    (isBuy) ? partnerId : id,
                     this.price, tradePartners.get(partnerId));
         }
+    }
+
+    @Override
+    public void removePartnerFromLog(int partnerId) {
+        tradePartners.remove(partnerId);
     }
 
     public void decrementVolume(int v) {
         assert (v <= volume);
         volume -= v;
     }
-
 
     public int getVolume() {
         return volume;
@@ -44,5 +48,21 @@ public class LimitOrder {
 
     public void setTime(long nanoTime) {
         this.tsc = nanoTime;
+    }
+
+    public int price() {
+        return price;
+    }
+
+    public long tsc() {
+        return tsc;
+    }
+
+    public int id() {
+        return id;
+    }
+
+    public boolean isBuy() {
+        return isBuy;
     }
 }

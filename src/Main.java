@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class Main {
@@ -8,6 +6,12 @@ public class Main {
     public static final int NUM_LIMIT_ORDER_FIELDS = 4;
 
     public static void main(String[] args) throws IOException {
+
+        // For testing purposes
+        if (args.length > 0) {
+            System.setIn(new FileInputStream(args[0]));
+        }
+
 
         OrderBook book = new OrderBook();
 
@@ -19,7 +23,6 @@ public class Main {
             String[] tokens = line.split(",");
             boolean isBuy = tokens[0].charAt(0) == 'B';
             int id = Integer.parseInt(tokens[1]);
-
             short price = Short.parseShort(tokens[2]);
             int volume = Integer.parseInt(tokens[3]);
             if (tokens.length > NUM_LIMIT_ORDER_FIELDS) {
