@@ -51,19 +51,19 @@ public class LimitOrder implements Order {
     }
 
 
-    public void setTime(long nanoTime) {
-        this.tsc = nanoTime;
+    public void setTime(long timestamp) {
+        this.tsc = timestamp;
     }
 
-    public int price() {
+    public int getPrice() {
         return price;
     }
 
-    public long tsc() {
+    public long getTimeStamp() {
         return tsc;
     }
 
-    public int id() {
+    public int getId() {
         return id;
     }
 

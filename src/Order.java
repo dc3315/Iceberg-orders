@@ -1,14 +1,29 @@
 public interface Order {
 
+    static Order fromLine(String line) {
+        String[] tokens = line.split(",");
+        boolean isBuy = tokens[0].charAt(0) == 'B';
+        int id = Integer.parseInt(tokens[1]);
+        short price = Short.parseShort(tokens[2]);
+        int volume = Integer.parseInt(tokens[3]);
+        if (tokens.length > 4) {
+            // iceberg order
+            int peakSize = Integer.parseInt(tokens[4]);
+            return new IcebergOrder(isBuy, id, price, volume, peakSize);
+        } else {
+            return new LimitOrder(isBuy, id, price, volume);
+        }
+    }
+
     int getVolume();
 
     void decrementVolume(int v);
 
-    int price();
+    int getPrice();
 
-    long tsc();
+    long getTimeStamp();
 
-    int id();
+    int getId();
 
     void trackTradePartner(int id, int v);
 
@@ -16,7 +31,7 @@ public interface Order {
 
     boolean isBuy();
 
-    void setTime(long tsc);
+    void setTime(long timestamp);
 
     void logFill();
 

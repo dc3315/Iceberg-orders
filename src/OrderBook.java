@@ -1,27 +1,16 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.PriorityQueue;
 
 public class OrderBook {
-
-    private PriorityQueue<Order> buyOrders;
-    private PriorityQueue<Order> sellOrders;
-
-    public OrderBook() {
-        buyOrders = new PriorityQueue<>((o1, o2) -> {
-            int priceComparison = Integer.compare(o2.price(), o1.price());
-            return (priceComparison == 0) ? Long.compare(o1.tsc(), o2.tsc())
-                    : priceComparison;
-        });
-
-        sellOrders = new PriorityQueue<>((o1, o2) -> {
-            int priceComparison = Integer.compare(o1.price(), o2.price());
-            return (priceComparison == 0) ? Long.compare(o1.tsc(), o2.tsc())
-                    : priceComparison;
-        });
-    }
+    private final PriorityQueue<Order> buyOrders = new PriorityQueue<>(
+            Comparator.comparing(Order::getPrice).reversed().thenComparing(Order::getTimeStamp));
+    private final PriorityQueue<Order> sellOrders = new PriorityQueue<>(
+            Comparator.comparing(Order::getPrice).thenComparing(Order::getTimeStamp));
 
     public void submit(Order order) {
-
         if (order.isBuy()) {
             buyOrders.add(order);
         } else {
@@ -40,8 +29,8 @@ public class OrderBook {
         Order sellRoot;
         int i = 0;
         while (!buyOrders.isEmpty() && !sellOrders.isEmpty() &&
-                (buyRoot = buyOrders.peek()).price() >= (sellRoot =
-                        sellOrders.peek()).price()) {
+                (buyRoot = buyOrders.peek()).getPrice() >= (sellRoot =
+                        sellOrders.peek()).getPrice()) {
             if (aggressiveEntry && i == 0) {
                 // if the order reached top of one of priority queues
                 // it succeeded in aggressively entering.
@@ -59,8 +48,8 @@ public class OrderBook {
             sellRoot.decrementVolume(tradeVolume);
 
             // Track trading partners.
-            buyRoot.trackTradePartner(sellRoot.id(), tradeVolume);
-            sellRoot.trackTradePartner(buyRoot.id(), tradeVolume);
+            buyRoot.trackTradePartner(sellRoot.getId(), tradeVolume);
+            sellRoot.trackTradePartner(buyRoot.getId(), tradeVolume);
 
             // Eliminate filled orders or refresh icebergs.
             checkOrderVolume(buyRoot, sellRoot, c);
@@ -96,7 +85,7 @@ public class OrderBook {
             // Order was exhausted, log immediate execution and remove from
             // partnerlist in remaining trade. This means only one log per
             // <Buyer,Seller> pair trade.
-            partner.untrackTradePartner(order.id());
+            partner.untrackTradePartner(order.getId());
             orders.poll().logFill();
         }
     }
@@ -127,19 +116,25 @@ public class OrderBook {
     private void renderOrderPair(Order b, Order s) {
         assert (b != null || s != null);
         if (b != null) {
-            System.out.printf("|%10d|%,13d|%,7d|", b.id(), b.getVolume(),
-                    b.price());
+            System.out.printf("|%10d|%,13d|%,7d|", b.getId(), b.getVolume(),
+                    b.getPrice());
         } else {
             System.out.printf("|%10c|%13c|%7c|", ' ', ' ', ' ');
         }
 
         if (s != null) {
-            System.out.printf("%,7d|%,13d|%10d|", s.price(), s.getVolume(),
-                    s.id());
+            System.out.printf("%,7d|%,13d|%10d|", s.getPrice(), s.getVolume(),
+                    s.getId());
         } else {
             System.out.printf("%7c|%13c|%10c|", ' ', ' ', ' ');
         }
         System.out.println();
     }
 
+    public void executeTrades(BufferedReader tradesDataStream) throws IOException {
+        String line;
+        while ((line = tradesDataStream.readLine()) != null) {
+            submit(Order.fromLine(line));
+        }
+    }
 }
