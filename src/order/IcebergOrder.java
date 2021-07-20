@@ -1,10 +1,11 @@
-public class IcebergOrder extends LimitOrder {
+package order;
 
-    private int peakSize;
+class IcebergOrder extends LimitOrder {
+
+    private final int peakSize;
     private int peak;
 
-    public IcebergOrder(boolean buy, int id, short price, int volume,
-                        int peakSize) {
+    IcebergOrder(boolean buy, int id, short price, int volume, int peakSize) {
         super(buy, id, price, volume);
         this.peakSize = peakSize;
         this.peak = peakSize;
@@ -24,7 +25,8 @@ public class IcebergOrder extends LimitOrder {
 
     @Override
     public void decrementVolume(int v) {
-        assert (v <= peak); // trading system can never see more than the peak
+        assert (v <= peak); // typically you would use something like Preconditions.checkState() here.
+        // trading system can never see more than the peak
         // so decrementing by more than peak should never happen.
         peak -= v;
         if (peak == 0) {
@@ -33,7 +35,6 @@ public class IcebergOrder extends LimitOrder {
         }
     }
 
-    // Float iceberg up
     private void floatUp() {
         int toFloatUp = Math.min(volume, peakSize - peak);
         peak += toFloatUp;

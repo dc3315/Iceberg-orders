@@ -1,3 +1,5 @@
+package order;
+
 public interface Order {
 
     static Order fromLine(String line) {
@@ -7,7 +9,6 @@ public interface Order {
         short price = Short.parseShort(tokens[2]);
         int volume = Integer.parseInt(tokens[3]);
         if (tokens.length > 4) {
-            // iceberg order
             int peakSize = Integer.parseInt(tokens[4]);
             return new IcebergOrder(isBuy, id, price, volume, peakSize);
         } else {
@@ -33,7 +34,5 @@ public interface Order {
 
     void setTime(long timestamp);
 
-    void logFill();
-
-    void refresh();
+    default void refresh() {}
 }
